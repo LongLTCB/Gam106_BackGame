@@ -16,18 +16,49 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Region>(entity =>
+        {
+            entity.HasKey(e => e.regionId);
+            entity.Property(e => e.Name).IsRequired();
+        });
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.roleId);
+            entity.Property(e => e.Name).IsRequired();
+        });
         // Optional: Configure your entity here
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+            entity.HasKey(e => e.userId);
+            entity.Property(e => e.username).IsRequired();
+            entity.Property(e => e.linkAvatar);
+            entity.Property(e => e.otp);
+
+            entity.HasOne(e => e.region)
+                  .WithMany(r => r.Users)
+                  .HasForeignKey("regionId")
+                  .IsRequired();
+
+            entity.HasOne(e => e.role)
+                  .WithMany(r => r.Users)
+                  .HasForeignKey("roleId")
+                  .IsRequired();
         });
+        
+
 
         // Optional: Seed some data
+        modelBuilder.Entity<Region>().HasData(
+            new Region { regionId = 1, Name = "Region1" },
+            new Region { regionId = 2, Name = "Region2" }
+        );
+        modelBuilder.Entity<Role>().HasData(
+            new Role { roleId = 1, Name = "Admin" },
+            new Role { roleId = 2, Name = "User" }
+        );
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Username = "john_doe", Email = "john@example.com" },
-            new User { Id = 2, Username = "jane_smith", Email = "jane@example.com" }
+            new { userId = 1, username = "user1", linkAvatar = "avatar1.png", otp = 123456, regionId = 1, roleId = 1 },
+            new { userId = 2, username = "user2", linkAvatar = "avatar2.png", otp = 654321, regionId = 2, roleId = 2 }
         );
     }
 }
