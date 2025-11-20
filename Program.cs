@@ -48,5 +48,21 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+var mailSettings = builder.Configuration.GetSection("EmailSettings")
+.Get<WebApplication1.Models.EmailSettings>();
+var emailMessage = new MimeKit.MimeMessage();
+emailMessage.From.Add(new MimeKit.MailboxAddress(mailSettings.SenderName,
+ mailSettings.SenderEmail));
+emailMessage.To.Add(new MimeKit.MailboxAddress("Recipient Name", "tungtt64@fpt.edu.vn"));
+emailMessage.Subject = "hello1234";
+emailMessage.Body = new MimeKit.TextPart("plain") { Text = "hello from c# 10:02" };
+
+using (var client = new MailKit.Net.Smtp.SmtpClient())
+{
+    client.Connect(mailSettings.SmtpServer, mailSettings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+    client.Authenticate(mailSettings.UserName, mailSettings.Password);
+    client.Send(emailMessage);
+    client.Disconnect(true);
+}
 
 app.Run();

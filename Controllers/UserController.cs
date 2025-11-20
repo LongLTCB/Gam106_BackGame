@@ -73,4 +73,18 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
