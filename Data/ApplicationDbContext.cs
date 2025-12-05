@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Models;
+using WebApplication1.Models; // ??m b?o namespace này ch?a l?p Player
 
 namespace WebApplication1.Data;
 
@@ -10,9 +10,15 @@ public class ApplicationDbContext : DbContext
     {
     }
 
+    // =======================================================
+    // V? TRÍ C?N THÊM DbSet<Player>
+    // =======================================================
     public DbSet<User> Users { get; set; }
     public DbSet<Region> Regions { get; set; }
     public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Player> Players { get; set; } // <--- ?Ã THÊM VÀO ?ÂY
+    // =======================================================
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,12 +29,14 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.regionId);
             entity.Property(e => e.Name).IsRequired();
         });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.roleId);
             entity.Property(e => e.Name).IsRequired();
         });
-        // Optional: Configure your entity here
+
+        // C?u hình cho User
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.userId);
@@ -38,16 +46,28 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.otp);
 
             entity.HasOne(e => e.region)
-                  .WithMany(r => r.Users)
-                  .HasForeignKey("regionId")
-                  .IsRequired();
+                    .WithMany(r => r.Users)
+                    .HasForeignKey("regionId")
+                    .IsRequired();
 
             entity.HasOne(e => e.role)
-                  .WithMany(r => r.Users)
-                  .HasForeignKey("roleId")
-                  .IsRequired();
+                    .WithMany(r => r.Users)
+                    .HasForeignKey("roleId")
+                    .IsRequired();
         });
-        
+
+        // =======================================================
+        // C?u hình cho Player (Tùy ch?n: ch? thêm n?u b?n c?n)
+        // N?u không, EF Core s? t? ??ng ánh x? theo quy ??c
+        // Ví d?:
+        /*
+        modelBuilder.Entity<Player>(entity =>
+        {
+             entity.HasKey(e => e.PlayerId); 
+             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+        });
+        */
+        // =======================================================
 
 
         // Optional: Seed some data
